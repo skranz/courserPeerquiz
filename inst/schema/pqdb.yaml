@@ -1,0 +1,29 @@
+# Tables for simple user management
+pqstate:
+  descr: state of a peerquiz
+  table:
+    id: VARCHAR(255)
+    # 0=PQ_PRE, 1= PQ_WRITE, 2=PQ_GUESS, 3=PQ_CLOSED
+    state: INTEGER
+    # relevant dates
+    writestart: DATE
+    writeend: DATE
+    guesssstart: DATE
+    guessend: DATE
+  indexes:
+    - 'CREATE UNIQUE INDEX pqstate1 ON pqstate(id)'
+    - 'CREATE INDEX pqstate2 ON pqstate(state)'
+
+pqguess:
+  descr: guesses
+  table:
+    id: VARCHAR(255)
+    writerid: VARCHAR(255)
+    responderid: VARCHAR(255)
+    rank: INTEGER
+    numchoices: INTEGER
+    guesstime: DATETIME
+  indexes:
+    - 'CREATE INDEX pqguess1 ON pqguess (id, writerid)'
+    - 'CREATE INDEX pqguess2 ON pqguess (id, responderid)'
+
