@@ -1,11 +1,11 @@
 example.peerquiz = function() {
-  setwd("D:/libraries/courserPeerquiz")
-  file = "p-value.yaml"
-  file = "gutschein.yaml"
-  file = "Kap1_Software_3.Rmd"
-  file = "Kap2_3_Happiness.Rmd"
+  setwd("D:/libraries/courserPeerquiz/peerquiz")
+  id = "p-value.yaml"
+  id = "gutschein.yaml"
+  id = "Kap1_Software_3"
+  id = "Kap2_3_Happiness"
   app = eventsApp()
-  pq = create.pq(file=file)
+  pq = compile.and.save.pq(id=id)
   app$userid = paste0("Guest_", sample.int(100000,1))
   save.pq.sample.sol(pq=pq)
   ui = peerquiz.write.ui(pq)
@@ -129,12 +129,12 @@ save.pq.sample.sol = function(pq, userid = "SOLUTION",  is.sol=TRUE, file="sampl
 
 }
 
-save.pq.answer = function(pq, userid=get.pq.userid(), values, answer, answer.ui, pq.dir=get.pq.dir(pq), is.sol=FALSE, file=paste0(digest(userid),".pqa")) {
+save.pq.answer = function(pq, userid=get.pq.userid(), values, answer, answer.ui, task.dir=pq.task.dir(pq), is.sol=FALSE, file=paste0(digest(userid),".pqa")) {
   restore.point("save.pq.answer")
 
   pqa = list(id=pq$id, userid=userid, values=list(values), answer=answer, answer.ui=list(answer.ui), is.sol=is.sol, time=Sys.time())
 
-  answers.dir = file.path(pq.dir,"answers")
+  answers.dir = file.path(task.dir,"answers")
   if (!dir.exists(answers.dir))
     dir.create(answers.dir, recursive = TRUE)
 

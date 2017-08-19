@@ -1,6 +1,3 @@
-
-
-
 pq.schema = function(app=getApp()) {
   if (!is.null(app$glob[["pqschema"]]))
     return(app$glob[["pqschema"]])
@@ -9,13 +6,13 @@ pq.schema = function(app=getApp()) {
   app$glob[["pqschema"]] = rmdtools::read.yaml(schema.file)
 }
 
-get.pqdb = function(pqs.dir = get.pqs.dir(), db=app$glob[["pqdb"]], app = getApp()) {
+get.pqdb = function(pq.dir = get.pq.dir(), db=app$glob[["pqdb"]], app = getApp(), db.dir = file.path(pq.dir,"db")) {
   if (!is.null(db)) return(db)
 
-  db.dir = pqs.dir
+
   db.file = file.path(db.dir,"pq.sqlite")
   if (!file.exists(db.file)) {
-    db = create.pqdb(pqs.dir=pqs.dir)
+    db = create.pqdb(pq.dir=pq.dir)
   } else {
     db = dbConnect(SQLite(),dbname = file.path(db.dir,"pq.sqlite"))
   }
@@ -24,12 +21,12 @@ get.pqdb = function(pqs.dir = get.pqs.dir(), db=app$glob[["pqdb"]], app = getApp
   db
 }
 
-create.pqdb = function(pqs.dir=get.pqs.dir(), schema.file = NULL) {
+create.pqdb = function(pq.dir=get.pq.dir(), schema.file = NULL,db.dir = file.path(pq.dir,"db")) {
   restore.point("create.pqdb")
 
-  db.dir = pqs.dir
+
   if (!dir.exists(db.dir))
-    dir.create(db.dir)
+    dir.create(db.dir,recursive = TRUE)
 
   db = dbConnect(SQLite(),dbname = file.path(db.dir,"pq.sqlite"))
   schema = pq.schema()

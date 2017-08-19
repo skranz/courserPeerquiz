@@ -4,12 +4,12 @@ PQ_WRITE = 1
 PQ_GUESS = 2
 PQ_CLOSED = 3
 
-get.pqs.dir = function(...) {
-  pq.opts()$pqs.dir
+get.pq.dir = function(...) {
+  pq.opts()$pq.dir
 }
 
-get.pq.dir = function(pq, id=pq$id, pqs.dir = get.pqs.dir()) {
-  file.path(pqs.dir, id)
+pq.task.dir = function(pq, id=pq$id, pq.dir = get.pq.dir()) {
+  file.path(pq.dir,"tasks", id)
 }
 
 get.pq.userid = function(app=getApp()) {
@@ -37,58 +37,33 @@ set.pq.opts = function(pq.opts = init.pq.opts(), app=getApp()) {
   invisible(pq.opts)
 }
 
-init.pq.opts = function(pqs.dir = file.path(getwd(),"pq")) {
-  nlist(pqs.dir)
+init.pq.opts = function(pq.dir = getwd()) {
+  nlist(pq.dir)
 }
 
-example.peerquiz = function() {
-  setwd("D:/libraries/peerquiz")
-  file = "budget.yaml"
-  app = eventsApp()
-  pq = import.yaml()
-  pq = create.pq(yaml.file=file)
-
-  sols = c(list(pq$solution), pq$wrongsols)
-  sols = lapply(sols,sol.source.to.secure.html)
-  ui = peerquiz.guess.sol.ui(sols, pq=pq)
-
-  ui = peerquiz.write.ui(pq)
-
-
-  app$ui = fluidPage(
-    # Add a CSS class for red text colour
-    inlineCSS(list(
-      .bgempty = "background: white",
-      .bg1 = "background:  #FFD700",
-      .bg2 = "background:  #D0D0D0",
-      .bg3 = "background: ##CD7F32"
-    )),
-    withMathJax(ui)
-  )
-  viewApp()
-
-  #view.html(ui=ui)
-}
-
-load.pq = function(id, pq.file = file.path(dir,paste0(id,".pq")),  dir = get.pq.dir(id=id)) {
+load.pq = function(id, pq.file = file.path(dir,paste0(id,".pq")),  dir = pq.task.dir(id=id)) {
   restore.point("load.pq")
   return(readRDS(pq.file))
 }
 
-create.pq = function(yaml=NULL,pq=NULL, file = NULL, pqs.dir = get.pqs.dir(), save=TRUE, db=NULL, state= PQ_PRE) {
+compile.and.save.pq = function(id=NULL, pq=NULL, pq.dir = get.pq.dir(), source.dir = file.path(pq.dir,"sources"), save=TRUE, db=NULL, state= PQ_PRE) {
   restore.point("create.pq")
 
-  if (!is.null(file)) {
-    txt = readUtf8(file)
+  if (is.null(pq)) {
+    source.files = list.files(source.dir,pattern = glob2rx(paste0(id,".*")))
+    if (length(source.files)==0) {
+      stop(paste0("No .Rmd or .yaml source file starting with id '", id,"' found in peerquiz sources directory '",source.dir,"'."))
+    }
+    file = source.files[1]
+    txt = readUtf8(file.path(source.dir,file))
     if (tolower(tools::file_ext(file))=="rmd") {
       pq = parse.hashdot.yaml(txt=txt)
     } else {
       yaml = merge.lines(txt)
+      pq = read.yaml(text=yaml)
     }
   }
-  if (is.null(pq)) {
-    pq = read.yaml(text=yaml)
-  }
+
   pq$question_html = md2html(pq$question)
   if (!is.null(title)) {
     pq$question_html = paste0("<h3>", pq$title,"</h3>\n", pq$question_html)
@@ -121,22 +96,17 @@ create.pq = function(yaml=NULL,pq=NULL, file = NULL, pqs.dir = get.pqs.dir(), sa
 
   # save pq file
   if (save) {
-    pq.dir = get.pq.dir(pq)
-    if (!dir.exists(pq.dir)) {
-      dir.create(pq.dir, recursive=TRUE)
-      dir.create(file.path(pq.dir,"answers"))
+    task.dir = pq.task.dir(pq)
+    if (!dir.exists(task.dir)) {
+      dir.create(task.dir, recursive=TRUE)
+      dir.create(file.path(task.dir,"answers"))
     }
-    saveRDS(pq, file.path(pq.dir, paste0(pq$id,".pq")))
-
-    if (!is.null(yaml)) {
-      writeLines(yaml,file.path(pq.dir, paste0(pq$id,".yaml")),useBytes = TRUE)
-    }
-
+    saveRDS(pq, file.path(task.dir, paste0(pq$id,".pq")))
     save.pq.sample.sol(pq=pq)
 
     restore.point("before.db.entry")
     close.db = is.null(db)
-    if (is.null(db)) db = get.pqdb(pqs.dir=pqs.dir)
+    if (is.null(db)) db = get.pqdb(pq.dir=pq.dir)
     dbInsert(db, "pqstate", list(id=pq$id, state = state, writestart=NA, writeend=NA, guessstart=NA, guessend=NA),mode = "replace")
     if (close.db) dbDisconnect(db)
 

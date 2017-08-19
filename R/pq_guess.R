@@ -1,5 +1,5 @@
 example.peerquiz = function() {
-  setwd("D:/libraries/courserPeerquiz")
+  setwd("D:/libraries/courserPeerquiz/peerquiz")
   set.pq.opts()
   pq = load.pq("p-value")
   pq = load.pq("Kap1_Software_1")

@@ -1,4 +1,4 @@
-Package: peerquiz
+Package: courserPeerquiz
 Type: Package
 Title: Student peer review in form of a quiz game
 Version: 0.1
@@ -8,8 +8,7 @@ Author: Sebastian Kranz
 Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.de>
 Description:
   Not yet working.
-  Student peer review in form of a quiz game.
-  Mainly used as an RTutor plugin.
+  Student peer review in form of a quiz game as a courser plugin.
   Students first write an answer text to an open question.
   Then they see several answers. One is the sample solution,
   others are answers from other students. They must guess
@@ -29,4 +28,6 @@ Depends:
     webforms,
     rmdtools,
     digest,
-    RSQLite
+    RSQLite,
+    tidyr,
+    jsonlite
