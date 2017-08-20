@@ -9,9 +9,9 @@ pq_strings = function(lang = "en") {
 
 apq_strings = function(lang="en") {
   if (lang == "de"){
-    mark_utf8(list(state_desc=c(write="Schreibe Antwort bis ", guess="Rate Antwort bis ", before="Noch nicht offen",after="Beendet")))
+    mark_utf8(list(datetime_format = "%a %d.%m. %H:%M",state_desc=c(write="Schreibe Antwort bis ", guess="Rate Antwort bis ", before="Noch nicht offen",after="Beendet")))
   } else {
-    mark_utf8(list(state_desc=c(write="Write Answer", guess="Guess Answer", before="Not yet open",after="Finished")))
+    mark_utf8(list(datetime_format = "%a %b %d %H:%M",state_desc=c(write="Write Answer", guess="Guess Answer", before="Not yet open",after="Finished")))
   }
 
 }
