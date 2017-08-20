@@ -11,7 +11,7 @@ examples.pq.timetable.ui = function() {
   viewApp(app)
 }
 
-pq.load.time.table = function(pq.dir = get.pq.dir(), adapt.to.sources=TRUE) {
+pq.load.time.table = function(pq.dir = get.pq.dir(), adapt.to.sources=TRUE, convert.date.times=FALSE) {
   restore.point("pq.load.time.table")
   file = file.path(pq.dir,"timetable","timetable.json")
   if (!file.exists(file)) {
@@ -23,6 +23,19 @@ pq.load.time.table = function(pq.dir = get.pq.dir(), adapt.to.sources=TRUE) {
   }
   if (adapt.to.sources)
     tt = pq.adapt.time.table.to.sources(tt=tt, pq.dir=pq.dir)
+
+  if (convert.date.times) {
+    to.dt = function(x) {
+      rows = nchar(x)>0
+      x[!rows] = NA
+      as.POSIXct(x)
+    }
+    tt = mutate(tt,
+      start_write =to.dt(start_write),
+      start_guess =to.dt(start_guess),
+      end_guess =to.dt(end_guess)
+    )
+  }
   tt
 }
 

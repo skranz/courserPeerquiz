@@ -112,6 +112,7 @@ set.pgu.ui = function(container.id,pq, pgu = NULL) {
     )
     setUI(ns("ranking"), ranking.ui)
   })
+
   callJS("newClickRank",id=pq$id,div_ids=pgu$ans.div.id,max_ranked=3)
 
   buttonHandler(ns("submitGuessBtn"), function(...) {

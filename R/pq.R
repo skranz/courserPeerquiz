@@ -41,6 +41,33 @@ init.pq.opts = function(pq.dir = getwd()) {
   nlist(pq.dir)
 }
 
+load.or.compile.pq = function(id, pq.dir = get.pq.dir()) {
+  restore.point("load.or.compile.pq")
+
+  #if (id=="Kap2_3_Happiness") stop()
+  pq.file = file.path(pq.task.dir(id=id),paste0(id,".pq"))
+  compile = FALSE
+  if (!file.exists(pq.file)) {
+    compile = TRUE
+  } else {
+    # compile if source file is newer than compiled file
+    source.dir = file.path(pq.dir,"sources")
+    source.file = list.files(source.dir,pattern = glob2rx(paste0(id,".*")),full.names = TRUE)
+    if (length(source.file)>0) {
+      source.file = source.file[1]
+      cdat = file.mtime(pq.file)
+      sdat = file.mtime(source.file)
+      compile = sdat > cdat
+    }
+  }
+
+  if (compile) {
+    return(compile.and.save.pq(id=id, pq.dir=pq.dir))
+  } else{
+    return(readRDS(pq.file))
+  }
+}
+
 load.pq = function(id, pq.file = file.path(dir,paste0(id,".pq")),  dir = pq.task.dir(id=id)) {
   restore.point("load.pq")
   return(readRDS(pq.file))
@@ -57,10 +84,14 @@ compile.and.save.pq = function(id=NULL, pq=NULL, pq.dir = get.pq.dir(), source.d
     file = source.files[1]
     txt = readUtf8(file.path(source.dir,file))
     if (tolower(tools::file_ext(file))=="rmd") {
-      pq = parse.hashdot.yaml(txt=txt)
+      pq = try(parse.hashdot.yaml(txt=txt))
     } else {
       yaml = merge.lines(txt)
-      pq = read.yaml(text=yaml)
+      pq = try(read.yaml(text=yaml))
+    }
+    if (is(pq,"try-error")) {
+      msg = paste0("Error when parsing peer quiz source file ", file,":\n", as.character(pq))
+      stop(msg, call.=FALSE, domain=NA)
     }
   }
 
