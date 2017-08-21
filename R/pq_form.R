@@ -13,7 +13,7 @@ init.pq.form = function(pq, lang=first.none.null(pq$lang,"en"),explain_label = f
     ))
 
     if (is.null(pq$render.answer.fun)) {
-      pq$render.answer.fun = function(pqi,values=NULL, answer=NULL, answer.ui=NULL,...) {
+      pq$render.answer.fun = function(pq,values=NULL, answer=NULL, answer.ui=NULL,...) {
         restore.point("pq.render.answer.fun.sc")
         tagList(
           HTML(values[[1]]),
@@ -27,7 +27,7 @@ init.pq.form = function(pq, lang=first.none.null(pq$lang,"en"),explain_label = f
 
   pq$has.form = !is.null(pq[["fields"]])
   if (!pq$has.form) {
-    pq$form = pq$form.ui = NULL
+    pq$form = NULL
     return(pq)
   }
 
@@ -44,11 +44,12 @@ init.pq.form = function(pq, lang=first.none.null(pq$lang,"en"),explain_label = f
   set.form(form)
   rmd = pq[["inputform"]]
   cr = compile.rmd(text = rmd,out.type = "shiny")
-  ui = render.compiled.rmd(cr,out.type = "shiny")
-  form.ui = ui
+  #ui = render.compiled.rmd(cr,out.type = "shiny")
+  #form.ui = ui
 
   pq$form = form
-  pq$form.ui = form.ui
+  pq$form.ui.cr = cr
+  #pq$empty.form.ui = form.ui
   pq
 }
 
@@ -60,7 +61,7 @@ pq.default.input.form = function(pq, lang=first.none.null(pq$lang,"en"), explain
   txt
 }
 
-pq.default.render.answer.fun = function(pqi, values, answer=NULL, answer.ui=NULL,...) {
+pq.default.render.answer.fun = function(pq, values, answer=NULL, answer.ui=NULL,...) {
   restore.point("pq.default.render.answer.fun")
   if (is.null(pq$form)) return(answer.ui)
 
@@ -78,7 +79,7 @@ pq.default.render.answer.fun = function(pqi, values, answer=NULL, answer.ui=NULL
   })
 
   field.text = paste0(labels, values,"\n",collapse="")
-  explain_label = first.none.null(pqi$explain_label, pqi$str$explain_label,"")
+  explain_label = first.none.null(pq$explain_label, pq$str$explain_label,"")
 
   tagList(
     HTML(field.text),

@@ -2,11 +2,14 @@ examples.pq.stud = function() {
   setwd("D:/libraries/courserPeerquiz/peerquiz")
   app = eventsApp()
   apq = init.apq()
+
   app$ui = shiny::fluidPage(
+    pq.guess.headers(),
     uiOutput("mainUI")
   )
   appInitHandler(function(...) {
-    setUI("mainUI",active.pqs.ui(apq))
+    userid = app$userid = paste0("Guest", sample.int(20,1))
+    setUI("mainUI",active.pqs.ui(apq, userid=userid))
   })
   viewApp(app)
 }
@@ -23,16 +26,27 @@ init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, 
   apq$pqs$title = sapply(apq$pq.li, function(pq) pq$title)
   apq$lang = first.non.null(lang, apq$pq.li[[1]]$lang,"en")
   apq$strings = apq_strings(lang=apq$lang)
+
+  # list of answer df for quizzes in guess mode
+  rows = which(pqs$state == "guess")
+  adf.li = lapply(rows, function(row) {
+    pq = apq$pq.li[[row]]
+    pq.get.answers.df(pq)
+  })
+  names(adf.li) = pqs$id[rows]
+  apq$adf.li = adf.li
+
   apq
 }
 
 
-active.pqs.ui = function(apq, upq=NULL) {
+active.pqs.ui = function(apq, userid) {
   restore.point("make.apq.ui")
   pqs = apq$pqs %>%
     filter(state %in% c("write","guess")) %>%
     arrange(state_change_date)
 
+  userhash = digest(userid)
   library(shinyBS)
   require(MathjaxLocal)
 
@@ -47,10 +61,11 @@ active.pqs.ui = function(apq, upq=NULL) {
     stop.time = pqs$state_change_date[[row]]-60L
     title = paste0(pq$title, " (",state_desc," ", format(stop.time, apq$strings$datetime_format), ")")
     if (state == "write") {
-      ui = peerquiz.write.ui(pq)
+      ui = peerquiz.write.ui(pq,userid = userid)
     } else if (state == "guess") {
       ui = uiOutput(ns("guessUI"))
-      set.pgu.ui(container.id = ns("guessUI"),pq=pq)
+      pgu = new.apq.pgu(apq=apq, pq=pq, userid=userid)
+      set.pgu.ui(container.id = ns("guessUI"),pq=pq,pgu=pgu)
     } else {
       ui = HTML("No ui implemented")
     }
@@ -62,6 +77,15 @@ active.pqs.ui = function(apq, upq=NULL) {
   #ui = do.call(tabsetPanel,li)
   ui = tagList(li)
   withMathJax(ui)
+}
+
+# A guess object based on apq and pq data
+new.apq.pgu = function(apq,pq, userid) {
+  adf=apq$adf.li[[pq$id]]
+  ans = select.guess.choices(adf = adf, responderid=userid,n = first.non.null(pq[["num.ans"]],4))
+  pgu = new.pgu(pq=pq,responderid=userid,ans=ans)
+  set.pgu(pgu)
+  pgu
 }
 
 pq.state.stop.time = function(pqs) {

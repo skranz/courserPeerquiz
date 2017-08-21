@@ -7,7 +7,10 @@ pq.schema = function(app=getApp()) {
 }
 
 get.pqdb = function(pq.dir = get.pq.dir(), db=app$glob[["pqdb"]], app = getApp(), db.dir = file.path(pq.dir,"db")) {
-  if (!is.null(db)) return(db)
+  if (!is.null(db)) {
+    if (dbIsValid(dh))
+      return(db)
+  }
 
 
   db.file = file.path(db.dir,"pq.sqlite")

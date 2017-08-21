@@ -45,14 +45,16 @@ pq.adapt.time.table.to.sources = function(tt=NULL, pq.dir = get.pq.dir()) {
   sources = tools::file_path_sans_ext(list.files(sources.dir))
 
   new.sources = setdiff(sources, tt$id)
+  removed.sources = setdiff(tt$id, sources)
+  tt = tt[! tt$id %in% removed.sources, ]
 
   if (length(new.sources)==0) return(tt)
 
-  tt.new = data_frame(id=new.sources, start_write = "", start_guess = "", end_guess = "")
+  tt.new = data_frame(id=new.sources,active=FALSE, start_write = "", start_guess = "", end_guess = "")
   if (is.null(tt)) {
     return(tt.new)
   }
-  tt = rbind(tt, new.tt)
+  tt = rbind(tt, tt.new)
   tt = tt[match(tt$id, sources),]
   tt
 }

@@ -5,7 +5,7 @@ example.peerquiz = function() {
   pq = load.pq("Kap1_Software_1")
 
   responderid = "guest"
-  adf = get.answers.df(pq=pq)
+  adf = pq.get.answers.df(pq=pq)
 
   ans = select.guess.choices(adf, responderid = responderid)
   pgu = set.pgu(new.pgu(pq=pq, ans=ans,responderid = responderid))
@@ -25,8 +25,8 @@ example.peerquiz = function() {
 }
 
 
-get.answers.df = function(pq) {
-  restore.point("get.answers.df")
+pq.get.answers.df = function(pq) {
+  restore.point("pq.get.answers.df")
   adf = load.pq.answers(pq=pq)
   db = get.pqdb()
   gdf = dbGet(db,"pqguess",nlist(id=pq$id))
@@ -62,7 +62,7 @@ select.guess.choices = function(adf, responderid, n=4) {
 }
 
 
-new.pgu = function(pq,responderid, ans=NULL,num.ans = NROW(ans),...) {
+new.pgu = function(pq,responderid, ans= if(!is.null(adf)) select.guess.choices(adf = adf, responderid=responderid), num.ans = NROW(ans), adf = NULL, ...) {
   pgu = as.environment(list(id=pq$id,responderid=responderid, ans=ans, num.ans=num.ans, ans.div.id = paste0("ans-div-id-",seq_len(NROW(ans)),"-",pq$id)))
 }
 
@@ -156,7 +156,6 @@ pgu.ui = function(ans=pgu$ans,pq, pgu=get.pgu(pq), num.cols=2, add.header = TRUE
 
   ui = withMathJax(tagList(
     if (add.header) pq.guess.headers(),
-    h4(pq$str$task),
     HTML(pq$question_html),
     h4(pq$str$proposed_answers),
     HTML(tab),

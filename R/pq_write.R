@@ -20,17 +20,28 @@ example.peerquiz = function() {
 
 
 
-peerquiz.write.ui = function(pq) {
+peerquiz.write.ui = function(pq, userid=NULL, pqa=NULL) {
   restore.point("peerquiz.write.ui")
+
+  if (is.null(pqa) &! is.null(userid)) {
+    pqa = load.pq.answer(pq=pq, userid=userid)
+  }
+
 
   ns = pq$ns
 
+  if (pq$has.form) {
+    set.form(pq$form, params=pqa$values[[1]])
+    form.ui = render.compiled.rmd(pq$form.ui.cr, out.type =  "shiny")
+  } else {
+    form.ui = NULL
+  }
   ui = tagList(
     p(HTML(pq$question_html)),
     tabsetPanel(type="pills",id = ns("tabset"),
       tabPanel(title = "Edit", value = "edit",
-        pq[["form.ui"]],
-        pqTextAreaInput(ns("ace"),value = pq$template,label="",width="100%",rows=pq$ace_lines, resize="both")
+        form.ui,
+        pqTextAreaInput(ns("ace"),value = first.non.null(pqa$answer,pq$template),label="",width="100%",rows=pq$ace_lines, resize="both")
         #aceEditor(outputId = ns("ace"),value = pq$template,mode = "text",showLineNumbers = FALSE,wordWrap = TRUE,height = 12*pq$ace_lines+20)
       ),
       tabPanel(title = "Preview", value = "preview",
@@ -41,6 +52,7 @@ peerquiz.write.ui = function(pq) {
     actionButton(ns("saveBtn"),"Save")
   )
 
+
   buttonHandler(ns("saveBtn"), function(...) {
     ns = pq$ns
     res = get.preview.values(pq=pq)
@@ -48,8 +60,9 @@ peerquiz.write.ui = function(pq) {
       updateTabsetPanel(app$session,ns("tabset"),"edit")
       return()
     }
-    save.pq.answer(pq, answer=res$answer, values=res$values, answer.ui = res$answer.ui)
-    timedMessage(ns("msg"),"Your answer has been saved.")
+    save.pq.answer(pq, answer=res$answer, values=res$values, answer.ui = res$answer.ui, userid=userid)
+    msg = pq$str$write_save_msg
+    timedMessage(ns("msg"),msg)
   })
 
   changeHandler(ns("tabset"),pq=pq, function(value, app,pq, ...) {
@@ -63,7 +76,26 @@ peerquiz.write.ui = function(pq) {
       setUI(ns("previewUI"), wellPanel(res$answer.ui))
     }
   })
+
+
+
   ui
+}
+
+update.pq.write.ui = function(pq,userid=NULL, pqa=NULL) {
+  ns = pq$ns
+
+
+  if (is.null(pqa)) {
+    pqa = load.pq.answer(pq=pq, userid=userid)
+  }
+
+  if (length(pqa$values[[1]]>0))
+    set.form.values(form=pq$form, values=pqa$values[[1]])
+  li = list(pqa$answer)
+  names(li) = ns("ace")
+  setWidgetValues(li)
+
 }
 
 get.preview.values = function(pq) {
@@ -127,6 +159,14 @@ save.pq.sample.sol = function(pq, userid = "SOLUTION",  is.sol=TRUE, file="sampl
   }
   save.pq.answer(pq=pq, answer=answer, values=values, answer.ui = answer.ui,userid=userid, is.sol=TRUE, file=file)
 
+}
+
+load.pq.answer = function(id=pq$id, userid=get.pq.userid(), pq=NULL) {
+  restore.point("load.pq.answer")
+  answers.dir=file.path(pq.task.dir(id=id),"answers")
+  file=file.path(answers.dir, paste0(digest(userid),".pqa"))
+  if (!file.exists(file)) return(NULL)
+  readRDS(file)
 }
 
 save.pq.answer = function(pq, userid=get.pq.userid(), values, answer, answer.ui, task.dir=pq.task.dir(pq), is.sol=FALSE, file=paste0(digest(userid),".pqa")) {
