@@ -103,7 +103,6 @@ compile.and.save.pq = function(id=NULL, pq=NULL, pq.dir = get.pq.dir(), source.d
   pq$sol_div_id = paste0("sol_div_",1:8,"_",pq$id)
   pq$num.sol.click = 2
   pq$lang = first.none.null(pq$lang, "en")
-  pq$str = pq_strings(pq$lang)
 
   if (is.null(pq$ace_lines)) {
     pq$ace_lines = 10

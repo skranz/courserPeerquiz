@@ -8,7 +8,7 @@ examples.pq.stud = function() {
     uiOutput("mainUI")
   )
   appInitHandler(function(...) {
-    userid = app$userid = paste0("Guest", sample.int(20,1))
+    userid = app$userid = paste0("Guest", sample.int(1,1))
     setUI("mainUI",active.pqs.ui(apq, userid=userid))
   })
   viewApp(app)
@@ -25,7 +25,6 @@ init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, 
   names(apq$pq.li) = pqs$id
   apq$pqs$title = sapply(apq$pq.li, function(pq) pq$title)
   apq$lang = first.non.null(lang, apq$pq.li[[1]]$lang,"en")
-  apq$strings = apq_strings(lang=apq$lang)
 
   # list of answer df for quizzes in guess mode
   rows = which(pqs$state == "guess")
@@ -57,14 +56,14 @@ active.pqs.ui = function(apq, userid) {
     pq = apq$pq.li[[id]]
 
     state = apq$pqs$state[[row]]
-    state_desc = apq$strings$state_desc[[state]]
+    state_desc = pq_string(apq$lang)$state_desc[[state]]
     stop.time = pqs$state_change_date[[row]]-60L
-    title = paste0(pq$title, " (",state_desc," ", format(stop.time, apq$strings$datetime_format), ")")
+    title = paste0(pq$title, " (",state_desc," ", format(stop.time, pq_string(apq$lang)$datetime_format), ")")
     if (state == "write") {
       ui = peerquiz.write.ui(pq,userid = userid)
     } else if (state == "guess") {
       ui = uiOutput(ns("guessUI"))
-      pgu = new.apq.pgu(apq=apq, pq=pq, userid=userid)
+      pgu = get.apq.pgu(apq=apq, pq=pq, userid=userid)
       set.pgu.ui(container.id = ns("guessUI"),pq=pq,pgu=pgu)
     } else {
       ui = HTML("No ui implemented")
@@ -79,12 +78,34 @@ active.pqs.ui = function(apq, userid) {
   withMathJax(ui)
 }
 
+get.apq.pgu = function(apq, pq, userid) {
+  restore.point("get.apq.pgu")
+  task.dir=pq.task.dir(pq=pq,pq.dir = apq$pq.dir)
+  state = get.user.pgu.state(pq=pq, userid=userid)
+
+  if (state == "no") {
+    return(new.apq.pgu(apq=apq,pq=pq, userid))
+  }
+
+  dir = file.path(task.dir,paste0("pgu_", state))
+  readRDS(file.path(dir, digest(userid)))
+}
+
 # A guess object based on apq and pq data
 new.apq.pgu = function(apq,pq, userid) {
+  restore.point("new.apq.pgu")
   adf=apq$adf.li[[pq$id]]
   ans = select.guess.choices(adf = adf, responderid=userid,n = first.non.null(pq[["num.ans"]],4))
   pgu = new.pgu(pq=pq,responderid=userid,ans=ans)
   set.pgu(pgu)
+
+  # save
+  dir = file.path(pq.task.dir(pq=pq, pq.dir=apq$pq.dir), "pgu_assigned")
+  if (!dir.exists(dir))
+    dir.create(dir, recursive=TRUE)
+  file = file.path(dir,  digest(userid))
+  saveRDS(pgu, file)
+
   pgu
 }
 

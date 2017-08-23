@@ -61,7 +61,7 @@ peerquiz.write.ui = function(pq, userid=NULL, pqa=NULL) {
       return()
     }
     save.pq.answer(pq, answer=res$answer, values=res$values, answer.ui = res$answer.ui, userid=userid)
-    msg = pq$str$write_save_msg
+    msg = pq_string(pq$lang)$write_save_msg
     timedMessage(ns("msg"),msg)
   })
 

@@ -1,5 +1,5 @@
 
-init.pq.form = function(pq, lang=first.none.null(pq$lang,"en"),explain_label = first.none.null(pq$explain_label, pq$str$explain_label,"")) {
+init.pq.form = function(pq, lang=first.none.null(pq$lang,"en"),explain_label = first.none.null(pq$explain_label, pq_string(pq$lang)$explain_label,"")) {
   restore.point("init.pq.form")
 
   # We cannot combine sc with other fields
@@ -53,7 +53,7 @@ init.pq.form = function(pq, lang=first.none.null(pq$lang,"en"),explain_label = f
   pq
 }
 
-pq.default.input.form = function(pq, lang=first.none.null(pq$lang,"en"), explain_label = first.none.null(pq$explain_label, pq$str$explain_label,"")) {
+pq.default.input.form = function(pq, lang=first.none.null(pq$lang,"en"), explain_label = first.none.null(pq$explain_label,pq_string(pq$lang)$explain_label,"")) {
   restore.point("pq.default.input.form")
 
   txt = paste0('{{ fieldInput("',names(pq$fields),'")}}<br>', collapse="\n")
@@ -79,7 +79,7 @@ pq.default.render.answer.fun = function(pq, values, answer=NULL, answer.ui=NULL,
   })
 
   field.text = paste0(labels, values,"\n",collapse="")
-  explain_label = first.none.null(pq$explain_label, pq$str$explain_label,"")
+  explain_label = first.none.null(pq$explain_label, pq_string(pq$lang)$explain_label,"")
 
   tagList(
     HTML(field.text),
