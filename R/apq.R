@@ -147,3 +147,39 @@ get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.tim
   pqs
 
 }
+
+
+pq.after.ui = function(userid,pq, pgu=NULL) {
+  restore.point("pgu.after.ui")
+
+  pqa = load.pq.answer(pq=pq, userid=userid)
+
+  pdf = pq.compute.user.points(userid=userid)
+
+
+  ns = pq$ns
+  pgu$ans = ans
+
+  divs = lapply(seq_len(NROW(ans)), quiz.ans.div, pq=pq,pgu=pgu)
+  is.left = seq_along(divs)%%2 == 1
+  left = divs[is.left]
+  right = divs[!is.left]
+  if (length(right)<length(left)) right[[length(left)]] = ""
+
+  str = paste0('<tr><td valign="top" style="border: 0px solid #000000">',left,'</td><td valign="top" style="border: 0px solid #000000">',right,"</td></tr>")
+  tab = paste0('<table  style="width: 100%; border-collapse:collapse;"><col width="50%"><col width="50%">', paste0(str, collapse="\n"),"</table>")
+
+
+  ui = withMathJax(tagList(
+    if (add.header) pq.guess.headers(),
+    HTML(pq$question_html),
+    h4(pq_string(pq$lang)$proposed_answers),
+    HTML(tab),
+    uiOutput(ns("ranking")),
+    uiOutput(ns("pguAlert")),
+    if (edit)
+      actionButton(ns("submitGuessBtn"),pq_string(pq$lang)$submitBtn)
+  ))
+  ui
+}
+

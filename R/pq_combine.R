@@ -2,6 +2,7 @@ examples.pq.combine.answers = function() {
   id = "Kap4_1_Gutschein"
   pq.combine.answers(id=id)
   dat = pq.compute.points(id=id)
+  udat = pq.compute.user.points(userid="Guest1")
 }
 
 load.pq.answers = function(id = pq$id, task.dir = pq.task.dir(id=id), pq=NULL) {
@@ -91,5 +92,40 @@ pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.wr
     mutate(points = write.points+guess.points, has.written = userid %in% wdf$userid, has.guessed = userid %in% gdf$userid) %>%
     select(userid, points, write.points, guess.points, everything()) %>%
     arrange(desc(points))
+  rdf
+}
+
+
+pq.compute.user.points = function(userid, pq.dir = get.pq.dir(), points.write = c(6,3,1,0), points.guess = c(3,2,1,0), db = get.pqdb(pq.dir=pq.dir), id=NULL) {
+  restore.point("pq.compute.user.points")
+
+  # compute points average for writing
+  dfw = dbGet(db,"pqguess",nlist(writerid=userid),empty.as.null = FALSE)
+
+  wdf = dfw %>%
+    mutate(userid=writerid, wpoints = points.write[rank]) %>%
+    group_by(id, userid) %>%
+    summarize(write.points=mean(wpoints,na.rm=TRUE),
+      num.first = sum(rank==1),
+      num.second = sum(rank==2),
+      num.third = sum(rank==3),
+      num.fourth = sum(rank==4)
+    )
+
+  dfg = dbGet(db,"pqguess",nlist(responderid=userid, writerid="SOLUTION"), empty.as.null = FALSE)
+
+  # average points for guessing
+  gdf = dfg %>%
+    mutate(userid = responderid,  gpoints = points.guess[rank]) %>%
+    group_by(id,userid) %>%
+    summarize(guess.points=mean(gpoints,na.rm=TRUE))
+
+
+  rdf = full_join(wdf,gdf, by=c("id","userid"))
+  rdf[is.na(rdf)] = 0
+
+  rdf = rdf %>%
+    mutate(points = write.points+guess.points, has.written = userid %in% wdf$userid, has.guessed = userid %in% gdf$userid) %>%
+    select(userid,id, points, write.points, guess.points, everything())
   rdf
 }

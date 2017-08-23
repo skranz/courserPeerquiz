@@ -221,6 +221,8 @@ pq.guess.headers = function() {
 
 }
 
+
+
 pgu.ui = function(ans=pgu$ans,pq, pgu=get.pgu(pq), num.cols=2, add.header = TRUE, edit=TRUE) {
   restore.point("pgu.ui")
   ns = pq$ns
@@ -262,3 +264,4 @@ quiz.ans.div = function(ans.num=1, pq, pgu=get.pgu(pq)) {
 
   as.character(ui)
 }
+
