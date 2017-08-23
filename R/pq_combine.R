@@ -71,10 +71,10 @@ pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.wr
     mutate(userid=writerid, wpoints = points.write[rank]) %>%
     group_by(userid) %>%
     summarize(write.points=mean(wpoints,na.rm=TRUE),
-      num.first = sum(rank==1),
-      num.second = sum(rank==2),
-      num.third = sum(rank==3),
-      num.fourth = sum(rank==4)
+      first = sum(rank==1),
+      second = sum(rank==2),
+      third = sum(rank==3),
+      fourth = sum(rank==4)
     )
 
   # average points for guessing
@@ -99,26 +99,33 @@ pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.wr
 pq.compute.user.points = function(userid, pq.dir = get.pq.dir(), points.write = c(6,3,1,0), points.guess = c(3,2,1,0), db = get.pqdb(pq.dir=pq.dir), id=NULL) {
   restore.point("pq.compute.user.points")
 
+  if (is.null(id)) {
+    param = NULL
+  } else {
+    param = list(id=id)
+  }
+
   # compute points average for writing
-  dfw = dbGet(db,"pqguess",nlist(writerid=userid),empty.as.null = FALSE)
+  dfw = dbGet(db,"pqguess",c(param,nlist(writerid=userid)),empty.as.null = FALSE)
 
   wdf = dfw %>%
     mutate(userid=writerid, wpoints = points.write[rank]) %>%
     group_by(id, userid) %>%
     summarize(write.points=mean(wpoints,na.rm=TRUE),
-      num.first = sum(rank==1),
-      num.second = sum(rank==2),
-      num.third = sum(rank==3),
-      num.fourth = sum(rank==4)
-    )
+      first = sum(rank==1),
+      second = sum(rank==2),
+      third = sum(rank==3),
+      fourth = sum(rank==4)
+    ) %>% ungroup()
 
-  dfg = dbGet(db,"pqguess",nlist(responderid=userid, writerid="SOLUTION"), empty.as.null = FALSE)
+  dfg = dbGet(db,"pqguess",c(param,nlist(responderid=userid, writerid="SOLUTION")), empty.as.null = FALSE)
 
   # average points for guessing
   gdf = dfg %>%
     mutate(userid = responderid,  gpoints = points.guess[rank]) %>%
     group_by(id,userid) %>%
-    summarize(guess.points=mean(gpoints,na.rm=TRUE))
+    summarize(guess.points=mean(gpoints,na.rm=TRUE)) %>%
+    ungroup()
 
 
   rdf = full_join(wdf,gdf, by=c("id","userid"))

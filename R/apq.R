@@ -12,6 +12,23 @@ examples.pq.stud = function() {
     setUI("mainUI",active.pqs.ui(apq, userid=userid))
   })
   viewApp(app)
+
+
+  setwd("D:/libraries/courserPeerquiz/peerquiz")
+  id = "Kap4_1_Gutschein"
+  userid = "Guest7"
+  app = eventsApp()
+  apq = init.apq()
+
+  app$ui = shiny::fluidPage(
+    pq.guess.headers(),
+    uiOutput("mainUI")
+  )
+  appInitHandler(function(...) {
+    setUI("mainUI",pq.after.ui(id=id, userid=userid))
+  })
+  viewApp(app)
+
 }
 
 init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, convert.date.times=TRUE), lang=NULL) {
@@ -149,36 +166,24 @@ get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.tim
 }
 
 
-pq.after.ui = function(userid,pq, pgu=NULL) {
+pq.after.ui = function(userid,id=pq$id, pq=load.or.compile.pq(id=id), pgu=NULL) {
   restore.point("pgu.after.ui")
 
   pqa = load.pq.answer(pq=pq, userid=userid)
-
-  pdf = pq.compute.user.points(userid=userid)
-
-
-  ns = pq$ns
-  pgu$ans = ans
-
-  divs = lapply(seq_len(NROW(ans)), quiz.ans.div, pq=pq,pgu=pgu)
-  is.left = seq_along(divs)%%2 == 1
-  left = divs[is.left]
-  right = divs[!is.left]
-  if (length(right)<length(left)) right[[length(left)]] = ""
-
-  str = paste0('<tr><td valign="top" style="border: 0px solid #000000">',left,'</td><td valign="top" style="border: 0px solid #000000">',right,"</td></tr>")
-  tab = paste0('<table  style="width: 100%; border-collapse:collapse;"><col width="50%"><col width="50%">', paste0(str, collapse="\n"),"</table>")
+  sol = load.pq.sample.sol(pq=pq)
+  pdf = pq.compute.user.points(userid=userid, id=id)
 
 
   ui = withMathJax(tagList(
-    if (add.header) pq.guess.headers(),
     HTML(pq$question_html),
-    h4(pq_string(pq$lang)$proposed_answers),
-    HTML(tab),
-    uiOutput(ns("ranking")),
-    uiOutput(ns("pguAlert")),
-    if (edit)
-      actionButton(ns("submitGuessBtn"),pq_string(pq$lang)$submitBtn)
+    h3(pq_string(pq$lang)$sample_sol),
+    sol$answer.ui,
+    h3(pq_string(pq$lang)$your_sol),
+    pqa$answer.ui,
+    h3(pq_string(pq$lang)$num_guesses),
+    HTML(html.table(select(pdf,first, second, third, fourth), header=paste0(pq_string(pq$lang)$Rank, " ",1:4))),
+    h3(pq_string(pq$lang)$points),
+   HTML(html.table(select(pdf,write.points, guess.points, points), header=c("From people guessing your answer","From your guess","Total")))
   ))
   ui
 }

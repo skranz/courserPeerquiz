@@ -146,6 +146,17 @@ pqTextAreaInput = function (inputId, label, value = "", width = NULL, height = N
         rows = rows, cols = cols,spellcheck=spellcheck, value,...))
 }
 
+
+
+load.pq.sample.sol = function(id=pq$id,file="sample_solution.pqa", pq=NULL) {
+
+  answers.dir=file.path(pq.task.dir(id=id),"answers")
+  file=file.path(answers.dir, file)
+  if (!file.exists(file)) return(NULL)
+  readRDS(file)
+}
+
+
 save.pq.sample.sol = function(pq, userid = "SOLUTION",  is.sol=TRUE, file="sample_solution.pqa") {
   restore.point("save.pq.sample.sol")
 
@@ -160,6 +171,8 @@ save.pq.sample.sol = function(pq, userid = "SOLUTION",  is.sol=TRUE, file="sampl
   save.pq.answer(pq=pq, answer=answer, values=values, answer.ui = answer.ui,userid=userid, is.sol=TRUE, file=file)
 
 }
+
+
 
 load.pq.answer = function(id=pq$id, userid=get.pq.userid(), pq=NULL) {
   restore.point("load.pq.answer")
