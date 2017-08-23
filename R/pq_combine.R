@@ -70,7 +70,7 @@ pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.wr
   wdf = df %>%
     mutate(userid=writerid, wpoints = points.write[rank]) %>%
     group_by(userid) %>%
-    summarize(write.points=mean(wpoints,na.rm=TRUE),
+    summarize(write.points=round(mean(wpoints,na.rm=TRUE),1),
       first = sum(rank==1),
       second = sum(rank==2),
       third = sum(rank==3),
@@ -82,7 +82,7 @@ pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.wr
     filter(writerid=="SOLUTION") %>%
     mutate(userid = responderid,  gpoints = points.guess[rank]) %>%
     group_by(userid) %>%
-    summarize(guess.points=mean(gpoints,na.rm=TRUE))
+    summarize(guess.points=round(mean(gpoints,na.rm=TRUE),1))
 
 
   rdf = full_join(wdf,gdf, by="userid")
@@ -111,7 +111,7 @@ pq.compute.user.points = function(userid, pq.dir = get.pq.dir(), points.write = 
   wdf = dfw %>%
     mutate(userid=writerid, wpoints = points.write[rank]) %>%
     group_by(id, userid) %>%
-    summarize(write.points=mean(wpoints,na.rm=TRUE),
+    summarize(write.points=round(mean(wpoints,na.rm=TRUE),1),
       first = sum(rank==1),
       second = sum(rank==2),
       third = sum(rank==3),
@@ -124,7 +124,7 @@ pq.compute.user.points = function(userid, pq.dir = get.pq.dir(), points.write = 
   gdf = dfg %>%
     mutate(userid = responderid,  gpoints = points.guess[rank]) %>%
     group_by(id,userid) %>%
-    summarize(guess.points=mean(gpoints,na.rm=TRUE)) %>%
+    summarize(guess.points=round(mean(gpoints,na.rm=TRUE),1)) %>%
     ungroup()
 
 
@@ -132,7 +132,7 @@ pq.compute.user.points = function(userid, pq.dir = get.pq.dir(), points.write = 
   rdf[is.na(rdf)] = 0
 
   rdf = rdf %>%
-    mutate(points = write.points+guess.points, has.written = userid %in% wdf$userid, has.guessed = userid %in% gdf$userid) %>%
+    mutate(points = round(write.points+guess.points,1), has.written = userid %in% wdf$userid, has.guessed = userid %in% gdf$userid) %>%
     select(userid,id, points, write.points, guess.points, everything())
   rdf
 }

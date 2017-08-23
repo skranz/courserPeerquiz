@@ -9,7 +9,12 @@ examples.pq.stud = function() {
   )
   appInitHandler(function(...) {
     userid = app$userid = paste0("Guest", sample.int(1,1))
-    setUI("mainUI",active.pqs.ui(apq, userid=userid))
+    setUI("mainUI",tagList(
+      h4("Active Peer-Quizes"),
+      active.pqs.ui(apq, userid=userid),
+      h4("Closed Peer-Quizes"),
+      closed.pqs.ui(apq = apq, userid=userid)
+    ))
   })
   viewApp(app)
 
@@ -94,6 +99,37 @@ active.pqs.ui = function(apq, userid) {
   ui = tagList(li)
   withMathJax(ui)
 }
+
+
+closed.pqs.ui = function(apq, userid) {
+  restore.point("make.apq.ui")
+  pqs = apq$pqs %>%
+    filter(state %in% c("after")) %>%
+    arrange(end_guess)
+
+  userhash = digest(userid)
+  library(shinyBS)
+  require(MathjaxLocal)
+
+  li = lapply(seq_len(NROW(pqs)), function(row) {
+    restore.point("apq.ui.inner.panel")
+    id = pqs$id[row]
+    ns = NS(paste0("apq-",id))
+    pq = apq$pq.li[[id]]
+
+    state = apq$pqs$state[[row]]
+    title = paste0(pq$title)
+    ui = pq.after.ui(pq=pq,userid=userid)
+
+    #tabPanel(title=title, ui)
+    slimCollapsePanel(title=title, ui,heading.style=paste0("padding-top:  5px; padding-bottom: 5px;"))
+  })
+
+  #ui = do.call(tabsetPanel,li)
+  ui = tagList(li)
+  withMathJax(ui)
+}
+
 
 get.apq.pgu = function(apq, pq, userid) {
   restore.point("get.apq.pgu")
@@ -183,7 +219,7 @@ pq.after.ui = function(userid,id=pq$id, pq=load.or.compile.pq(id=id), pgu=NULL) 
     h3(pq_string(pq$lang)$num_guesses),
     HTML(html.table(select(pdf,first, second, third, fourth), header=paste0(pq_string(pq$lang)$Rank, " ",1:4))),
     h3(pq_string(pq$lang)$points),
-   HTML(html.table(select(pdf,write.points, guess.points, points), header=c("From people guessing your answer","From your guess","Total")))
+   HTML(html.table(select(pdf,write.points, guess.points, points), header=c("From people guessing your answer","From your guess","Total"),round.digits = 2))
   ))
   ui
 }
