@@ -1,5 +1,7 @@
 examples.pq.stud = function() {
   setwd("D:/libraries/courserPeerquiz/peerquiz")
+  setwd("D:/libraries/courser/courses/vwl/course/peerquiz")
+
   app = eventsApp()
   apq = init.apq()
 
@@ -8,29 +10,13 @@ examples.pq.stud = function() {
     uiOutput("mainUI")
   )
   appInitHandler(function(...) {
-    userid = app$userid = paste0("Guest", sample.int(1,1))
+    userid = app$userid = paste0("Guest_", sample.int(4,1))
     setUI("mainUI",tagList(
       h4("Active Peer-Quizes"),
       active.pqs.ui(apq, userid=userid),
       h4("Closed Peer-Quizes"),
       closed.pqs.ui(apq = apq, userid=userid)
     ))
-  })
-  viewApp(app)
-
-
-  setwd("D:/libraries/courserPeerquiz/peerquiz")
-  id = "Kap4_1_Gutschein"
-  userid = "Guest7"
-  app = eventsApp()
-  apq = init.apq()
-
-  app$ui = shiny::fluidPage(
-    pq.guess.headers(),
-    uiOutput("mainUI")
-  )
-  appInitHandler(function(...) {
-    setUI("mainUI",pq.after.ui(id=id, userid=userid))
   })
   viewApp(app)
 
@@ -77,7 +63,7 @@ active.pqs.ui = function(apq, userid) {
     ns = NS(paste0("apq-",id))
     pq = apq$pq.li[[id]]
 
-    state = apq$pqs$state[[row]]
+    state = pqs$state[[row]]
     state_desc = pq_string(apq$lang)$state_desc[[state]]
     stop.time = pqs$state_change_date[[row]]-60L
     title = paste0(pq$title, " (",state_desc," ", format(stop.time, pq_string(apq$lang)$datetime_format), ")")
