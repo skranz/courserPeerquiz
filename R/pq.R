@@ -137,7 +137,7 @@ compile.and.save.pq = function(id=NULL, pq=NULL, pq.dir = get.pq.dir(), source.d
     restore.point("before.db.entry")
     close.db = is.null(db)
     if (is.null(db)) db = get.pqdb(pq.dir=pq.dir)
-    dbInsert(db, "pqstate", list(id=pq$id, state = state, writestart=NA, writeend=NA, guessstart=NA, guessend=NA),mode = "replace")
+    #dbInsert(db, "pqstate", list(id=pq$id, state = state, writestart=NA, writeend=NA, guessstart=NA, guessend=NA),mode = "replace")
     if (close.db) dbDisconnect(db)
 
   }
@@ -145,3 +145,4 @@ compile.and.save.pq = function(id=NULL, pq=NULL, pq.dir = get.pq.dir(), source.d
 
   pq
 }
+

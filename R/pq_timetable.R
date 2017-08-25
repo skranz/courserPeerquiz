@@ -1,5 +1,6 @@
 examples.pq.timetable.ui = function() {
   setwd("D:/libraries/courserPeerquiz/peerquiz")
+  setwd("D:/libraries/courser/courses/vwl/course/peerquiz")
   set.pq.opts()
 
   tt = pq.load.time.table()

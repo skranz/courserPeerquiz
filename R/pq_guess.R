@@ -177,7 +177,7 @@ pgu.show.ans.ranking = function(pgu, pq, show.sol=isTRUE(pgu$state=="submitted")
 
 }
 
-pgu.submit = function(pgu, pq,show.sol=TRUE,...) {
+pgu.submit = function(pgu, pq,show.sol=TRUE,file.name = digest(pgu$responderid), show.msg =TRUE, ...) {
   restore.point("pgu.submit")
   ans = pgu$ans; ns = pq$ns;
 
@@ -198,11 +198,12 @@ pgu.submit = function(pgu, pq,show.sol=TRUE,...) {
   if (!dir.exists(dir))
     dir.create(dir, recursive = TRUE)
 
-  file.name = digest(pgu$responderid)
+  #file.name = digest(pgu$responderid)
   saveRDS(pgu, file.path(dir , file.name))
 
-  timedMessage(pq$ns("pguAlert"), html=colored.html(pq_string(pq$lang)$guess_save_msg, color="#880000"),millis = Inf)
-
+  if (show.msg) {
+    timedMessage(pq$ns("pguAlert"), html=colored.html(pq_string(pq$lang)$guess_save_msg, color="#880000"),millis = Inf)
+  }
   if (show.sol) {
     shinyEvents::setHtmlHide(pq$ns("submitGuessBtn"))
     pgu.show.ans.ranking(pgu, pq)

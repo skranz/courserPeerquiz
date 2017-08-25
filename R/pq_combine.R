@@ -63,7 +63,7 @@ pq.combine.answers = function(id = pq$id, task.dir = pq.task.dir(id=id), save=!T
 
 pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.write = c(6,3,1,0), points.guess = c(3,2,1,0), db = get.pqdb(pq.dir=pq.dir)) {
   restore.point("pq.points")
-  df = dbGet(db,"pqguess",nlist(id=id))
+  df = dbGet(db,"pqguess",nlist(id=id),empty.as.null = FALSE)
 
 
   # compute points average for writing
@@ -89,8 +89,8 @@ pq.compute.points = function(id=pq$id, pq=NULL, pq.dir = get.pq.dir(), points.wr
   rdf[is.na(rdf)] = 0
 
   rdf = rdf %>%
-    mutate(points = write.points+guess.points, has.written = userid %in% wdf$userid, has.guessed = userid %in% gdf$userid) %>%
-    select(userid, points, write.points, guess.points, everything()) %>%
+    mutate(id=id,points = write.points+guess.points, has.written = userid %in% wdf$userid, has.guessed = userid %in% gdf$userid) %>%
+    select(id,userid, points, write.points, guess.points, everything()) %>%
     arrange(desc(points))
   rdf
 }
