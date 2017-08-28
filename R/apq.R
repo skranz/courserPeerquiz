@@ -158,12 +158,15 @@ change.time = function(x, sec=min*60, min=hour*60, hour=day*24, day=0) {
   #as.POSIXct(as.integer(as.POSIXct(x))-sec)
 }
 
-get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.times=TRUE),pq.dir=get.pq.dir()) {
+get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.times=TRUE),pq.dir=get.pq.dir(), only.active = TRUE) {
   restore.point("get.pq.states")
   time = Sys.time()
 
+  if (only.active) {
+    tt = filter(tt, active==TRUE)
+  }
+
   pqs = tt %>%
-    filter(active) %>%
     mutate(
       state =
         ifelse(is.true(time >= end_guess),"after",
@@ -181,7 +184,7 @@ get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.tim
       ),
       state_change_sec = as.integer(state_change_date)-as.integer(time)
     ) %>%
-    select(id, state, state_change_date, state_change_sec, start_write, start_guess, end_guess)
+    select(id, state, state_change_date, state_change_sec, start_write, start_guess, end_guess,active)
 
   pqs
 
