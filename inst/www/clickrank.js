@@ -1,12 +1,12 @@
 newClickRank = function(id, div_ids, max_ranked) {
-  cr = {
+  var cr = {
     id: id,
     n_divs: div_ids.length,
     div_ids: div_ids,
     max_ranked: max_ranked,
     ranked: []
   };
-  sel = "#" + div_ids.join(", #");
+  var sel = "#" + div_ids.join(", #");
   $(document).on("click",sel, function(e) {
     var div_id = e.currentTarget.id;
     var ind = cr.div_ids.indexOf(div_id);

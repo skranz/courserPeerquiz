@@ -214,7 +214,15 @@ pgu.submit = function(pgu, pq,show.sol=TRUE,file.name = digest(pgu$responderid),
 }
 
 pq.guess.headers = function() {
+  restore.point("pq.guess.headers")
   www.path = system.file("www",package="peerquiz")
+
+  return(
+    htmlDependency('clickrank-css',version="1.0", src = system.file('www', package = 'courserPeerquiz'), stylesheet = 'clickrank.css',script = "clickrank.js"
+    )
+  )
+
+
   tagList(
     singleton(tags$head(includeScript(file.path(www.path,"clickrank.js")))),
     singleton(tags$head(includeCSS(file.path(www.path,"clickrank.css"))))
