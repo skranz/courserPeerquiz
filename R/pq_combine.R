@@ -44,7 +44,6 @@ pq.combine.answers = function(id = pq$id, task.dir = pq.task.dir(id=id), save=!T
   if (length(files)==0) return(NULL)
 
   li = lapply(files, function(file) {
-    restore.point("innner")
     pqa = readRDS(file)
     do.call(data_frame,pqa)
   })
