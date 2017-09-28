@@ -36,7 +36,7 @@ pq.has.new.answer = function(id = pq$id, task.dir = pq.task.dir(id=id)) {
 }
 
 
-pq.combine.answers = function(id = pq$id, task.dir = pq.task.dir(id=id), save=!TRUE) {
+pq.combine.answers = function(id = pq$id, task.dir = pq.task.dir(id=id), save=TRUE) {
   restore.point("pq.combine.answers")
 
   dir = file.path(task.dir,"answers")
