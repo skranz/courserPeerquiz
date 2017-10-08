@@ -32,7 +32,11 @@ peerquiz.write.ui = function(pq, userid=NULL, pqa=NULL) {
   ns = pq$ns
 
   if (pq$has.form) {
-    set.form(pq$form, params=pqa$values[[1]])
+    if (length(pqa$values[[1]])>0) {
+      set.form(pq$form, params=pqa$values[[1]])
+    } else {
+      set.form(pq$form)
+    }
     form.ui = render.compiled.rmd(pq$form.ui.cr, out.type =  "shiny")
   } else {
     form.ui = NULL
@@ -91,7 +95,7 @@ update.pq.write.ui = function(pq,userid=NULL, pqa=NULL) {
     pqa = load.pq.answer(pq=pq, userid=userid)
   }
 
-  if (length(pqa$values[[1]]>0))
+  if (length(pqa$values[[1]])>0)
     set.form.values(form=pq$form, values=pqa$values[[1]])
   li = list(pqa$answer)
   names(li) = ns("ace")
