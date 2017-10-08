@@ -17,7 +17,7 @@ pq_create_random_answers = function(pq=load.pq(id), n=100, id=NULL) {
   for (i in 1:n) {
     cat(".")
     answer = paste0("Random answer ", i)
-    answer.ui = withMathJax(HTML(answer.source.to.secure.html(answer)))
+    answer.ui = withMathJaxNoHeader(HTML(answer.source.to.secure.html(answer)))
     if (!is.null(pq$render.answer.fun)) {
       answer.ui = pq$render.answer.fun(pq=pq, values=values, answer=answer, answer.ui=answer.ui)
     }

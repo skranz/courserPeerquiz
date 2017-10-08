@@ -247,7 +247,7 @@ pgu.ui = function(ans=pgu$ans,pq, pgu=get.pgu(pq), num.cols=2, add.header = TRUE
   tab = paste0('<table  style="width: 100%; border-collapse:collapse;"><col width="50%"><col width="50%">', paste0(str, collapse="\n"),"</table>")
 
 
-  ui = withMathJax(tagList(
+  ui = withMathJaxNoHeader(tagList(
     if (add.header) pq.guess.headers(),
     HTML(pq$question_html),
     h4(pq_string(pq$lang)$proposed_answers),

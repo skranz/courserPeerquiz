@@ -55,7 +55,6 @@ active.pqs.ui = function(apq, userid) {
 
   userhash = digest(userid)
   library(shinyBS)
-  require(MathjaxLocal)
 
   li = lapply(seq_len(NROW(pqs)), function(row) {
     restore.point("apq.ui.inner.panel")
@@ -83,7 +82,7 @@ active.pqs.ui = function(apq, userid) {
 
   #ui = do.call(tabsetPanel,li)
   ui = tagList(li)
-  withMathJax(ui)
+  withMathJaxNoHeader(ui)
 }
 
 
@@ -95,7 +94,6 @@ closed.pqs.ui = function(apq, userid) {
 
   userhash = digest(userid)
   library(shinyBS)
-  require(MathjaxLocal)
 
   li = lapply(seq_len(NROW(pqs)), function(row) {
     restore.point("apq.ui.inner.panel")
@@ -113,7 +111,7 @@ closed.pqs.ui = function(apq, userid) {
 
   #ui = do.call(tabsetPanel,li)
   ui = tagList(li)
-  withMathJax(ui)
+  withMathJaxNoHeader(ui)
 }
 
 
@@ -199,7 +197,7 @@ pq.after.ui = function(userid,id=pq$id, pq=load.or.compile.pq(id=id), pgu=NULL) 
   pdf = pq.compute.user.points(userid=userid, id=id)
 
 
-  ui = withMathJax(tagList(
+  ui = withMathJaxNoHeader(tagList(
     HTML(pq$question_html),
     h3(pq_string(pq$lang)$sample_sol),
     sol$answer.ui,
@@ -212,4 +210,3 @@ pq.after.ui = function(userid,id=pq$id, pq=load.or.compile.pq(id=id), pgu=NULL) 
   ))
   ui
 }
-

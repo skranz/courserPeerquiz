@@ -11,7 +11,8 @@ example.peerquiz = function() {
   ui = peerquiz.write.ui(pq)
 
   app$ui = fluidPage(
-    withMathJax(ui)
+    mathjaxHeader(),
+    withMathJaxNoHeader(ui)
   )
   viewApp(app)
 
@@ -113,7 +114,7 @@ get.preview.values = function(pq) {
   }
 
   restore.point("shhduihsiudhf")
-  answer.ui = withMathJax(HTML(answer.source.to.secure.html(answer)))
+  answer.ui = withMathJaxNoHeader(HTML(answer.source.to.secure.html(answer)))
   if (!is.null(pq$render.answer.fun)) {
     answer.ui = pq$render.answer.fun(pq=pq, values=values, answer=answer, answer.ui=answer.ui)
   }
@@ -164,7 +165,7 @@ save.pq.sample.sol = function(pq, userid = "SOLUTION",  is.sol=TRUE, file="sampl
     field$sol
   })
   answer = pq$solution
-  answer.ui = withMathJax(HTML(answer.source.to.secure.html(answer)))
+  answer.ui = withMathJaxNoHeader(HTML(answer.source.to.secure.html(answer)))
   if (!is.null(pq$render.answer.fun)) {
     answer.ui = pq$render.answer.fun(pq=pq, values=values, answer=answer, answer.ui=answer.ui)
   }
