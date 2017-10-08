@@ -31,8 +31,9 @@ init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, 
   apq$pqs = pqs = get.pq.states(tt=tt)
   apq$pq.li =  lapply(pqs$id, load.or.compile.pq, pq.dir=pq.dir)
   names(apq$pq.li) = pqs$id
-  apq$pqs$title = sapply(apq$pq.li, function(pq) pq$title)
-  apq$lang = first.non.null(lang, apq$pq.li[[1]]$lang,"en")
+  if (!is.null(apq$pqs))
+    apq$pqs$title = sapply(apq$pq.li, function(pq) pq$title)
+  apq$lang = first.non.null(lang, if (length(apq$pq.li)>0) apq$pq.li[[1]]$lang,"en")
 
   # list of answer df for quizzes in guess mode
   rows = which(pqs$state == "guess")
@@ -49,6 +50,10 @@ init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, 
 
 active.pqs.ui = function(apq, userid) {
   restore.point("make.apq.ui")
+
+  if (NROW(apq$pqs)==0)
+    return(p("---"))
+
   pqs = apq$pqs %>%
     filter(state %in% c("write","guess")) %>%
     arrange(state_change_date)
@@ -163,6 +168,8 @@ get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.tim
   if (only.active) {
     tt = filter(tt, active==TRUE)
   }
+  if (NROW(tt)==0)
+    return(NULL)
 
   pqs = tt %>%
     mutate(
@@ -178,7 +185,7 @@ get.pq.states = function(tt = pq.load.time.table(pq.dir=pq.dir, convert.date.tim
         state=="guess"~end_guess,
         state=="write"~start_guess,
         state=="before"~start_write,
-        TRUE ~ as.POSIXct(NA)
+        TRUE ~ rep(as.POSIXct(NA), n())
       ),
       state_change_sec = as.integer(state_change_date)-as.integer(time)
     ) %>%
