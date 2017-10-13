@@ -22,13 +22,29 @@ examples.pq.stud = function() {
 
 }
 
-init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, convert.date.times=TRUE), lang=NULL) {
+update.apq = function(apq) {
+  restore.point("update.apq")
+
+  new.tt = pq.load.time.table(pq.dir=apq$pq.dir, convert.date.times=TRUE)
+  pqs = get.pq.states(tt=new.tt)
+
+  if (!identical(apq$pqs, pqs)) {
+    apq = init.apq(pq.dir=apq$pq.dir, tt=new.tt, pqs=pqs, lang=apq$lang)
+  }
+
+  apq
+}
+
+init.apq = function(pq.dir=get.pq.dir(), tt = pq.load.time.table(pq.dir=pq.dir, convert.date.times=TRUE), lang=NULL, pqs=NULL) {
   restore.point("init.apq")
   apq = list(
     pq.dir = pq.dir,
     tt = tt
   )
-  apq$pqs = pqs = get.pq.states(tt=tt)
+  if (is.null(pqs)) {
+    pqs = get.pq.states(tt=tt)
+  }
+  apq$pqs = pqs
   apq$pq.li =  lapply(pqs$id, load.or.compile.pq, pq.dir=pq.dir)
   names(apq$pq.li) = pqs$id
   if (!is.null(apq$pqs))
