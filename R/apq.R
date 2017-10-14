@@ -220,16 +220,26 @@ pq.after.ui = function(userid,id=pq$id, pq=load.or.compile.pq(id=id), pgu=NULL) 
   pdf = pq.compute.user.points(userid=userid, id=id)
 
 
+  labs = pq_string(pq$lang)
   ui = withMathJaxNoHeader(tagList(
     HTML(pq$question_html),
-    h3(pq_string(pq$lang)$sample_sol),
+    h3(labs$sample_sol),
     sol$answer.ui,
-    h3(pq_string(pq$lang)$your_sol),
-    pqa$answer.ui,
-    h3(pq_string(pq$lang)$num_guesses),
-    HTML(html.table(select(pdf,first, second, third, fourth), header=paste0(pq_string(pq$lang)$Rank, " ",1:4))),
+    if (!is.null(pqa)) {
+      tagList(
+      h3(labs$your_sol),
+      pqa$answer.ui,
+      h3(labs$num_guesses),
+      HTML(html.table(select(pdf,first, second, third, fourth), header=paste0(labs$Rank, " ",1:4)))
+      )
+    } else {
+      tagList(
+      hr(),
+      labs$no_answer_written
+      )
+    },
     h3(pq_string(pq$lang)$points),
-   HTML(html.table(select(pdf,write.points, guess.points, points), header=c("From people guessing your answer","From your guess","Total"),round.digits = 2))
+   HTML(html.table(select(pdf,write.points, guess.points, points), header=c(labs$points.write, labs$points.guess, labs$points.total),round.digits = 2))
   ))
   ui
 }
