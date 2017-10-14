@@ -95,10 +95,13 @@ compile.and.save.pq = function(id=NULL, pq=NULL, pq.dir = get.pq.dir(), source.d
     }
   }
 
-  pq$question_html = md2html(pq$question)
+  pq$question_html = knit.rmd(pq$question)
   if (!is.null(title)) {
     pq$question_html = paste0("<h3>", pq$title,"</h3>\n", pq$question_html)
   }
+  if (!is.null(pq$explain))
+    pq$explain_ui = knit.rmd(pq$explain,out.type = "shiny")
+
   pq$ns = NS(paste0("pq_",pq$id))
   pq$sol_div_id = paste0("sol_div_",1:8,"_",pq$id)
   pq$num.sol.click = 2

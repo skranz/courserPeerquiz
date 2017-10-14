@@ -239,7 +239,14 @@ pq.after.ui = function(userid,id=pq$id, pq=load.or.compile.pq(id=id), pgu=NULL) 
       )
     },
     h3(pq_string(pq$lang)$points),
-   HTML(html.table(select(pdf,write.points, guess.points, points), header=c(labs$points.write, labs$points.guess, labs$points.total),round.digits = 2))
+   HTML(html.table(select(pdf,write.points, guess.points, points), header=c(labs$points.write, labs$points.guess, labs$points.total),round.digits = 2)),
+    if (!is.null(pq$explain_ui)) {
+      tagList(
+        h3(labs$explain),
+        pq$explain_ui
+      )
+    }
+
   ))
   ui
 }

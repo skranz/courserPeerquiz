@@ -151,30 +151,36 @@ pgu.show.sol = function(pgu, pq, return.js = FALSE) {
   setHtmlCSS(id=id, list(border="4px solid blue;"))
 }
 
-pgu.show.ans.ranking = function(pgu, pq, show.sol=isTRUE(pgu$state=="submitted")) {
+pgu.show.ans.ranking = function(pgu, pq, show.sol=isTRUE(pgu$state=="submitted"), show.explain=show.sol) {
   restore.point("pgu.show.ans.ranking")
   ranked = pgu$ranked
   ns = pq$ns
 
+  labs = pq_string(pq$lang)
   cat("\nRanking:",paste0(ranked, collapse=", "))
   if (length(ranked)==0) {
-    str = pq_string(pq$lang)$not_yet_ranked
+    str = labs$not_yet_ranked
   } else {
-      str = paste0(seq_along(ranked), ": ",pq_string(pq$lang)$Answer," ", ranked)
+      str = paste0(seq_along(ranked), ": ",labs$Answer," ", ranked)
     if (show.sol) {
       rows = which(pgu$ans$is.sol[pgu$ranked])
       points = get.pgu.points(pgu=pgu,pq=pq)
-      str[rows] = paste0('<font color="#0000aa">', str[rows],' (',pq_string(pq$lang)$sample_sol,', ', points, ' ',pq_string(pq$lang)$points,')</font>')
+      str[rows] = paste0('<font color="#0000aa">', str[rows],' (',labs$sample_sol,', ', points, ' ',labs$points,')</font>')
     }
     str = paste0(str, collapse="<br>")
   }
 
   ranking.ui = tagList(
     h4(pq_string(pq$lang)$your_ranking,":"),
-    p(HTML(str))
+    p(HTML(str)),
+    if (show.explain & !is.null(pq$explain_ui)) {
+      tagList(
+        h3(labs$explain),
+        pq$explain_ui
+      )
+    }
   )
   setUI(ns("ranking"), ranking.ui)
-
 }
 
 pgu.submit = function(pgu, pq,show.sol=TRUE,file.name = digest(pgu$responderid), show.msg =TRUE, ...) {
