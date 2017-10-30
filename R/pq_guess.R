@@ -50,11 +50,11 @@ select.guess.choices = function(adf, responderid, n=4) {
   adf$row = seq_len(NROW(adf))
 
   sol = filter(adf, is.sol, userid != responderid)
-  ord = order(-sol$num_guess + runif(NROW(sol),0,0.0001))
+  ord = order(sol$num_guess + runif(NROW(sol),0,0.0001))
 
   sol.row = sol$row[ord[1]]
   ans = filter(adf, !is.sol,  userid != responderid)
-  ord = order(-ans$num_guess + runif(NROW(ans),0,0.0001))
+  ord = order(ans$num_guess + runif(NROW(ans),0,0.0001))
   ans.rows = ans$row[ord[1:(n-1)]]
 
   rows = sample(c(sol.row,ans.rows),replace = FALSE)
